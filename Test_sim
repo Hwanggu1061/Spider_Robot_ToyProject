@@ -1,0 +1,31 @@
+import omni.kit.commands
+from pxr import Gf, Sdf
+
+print(">>> 큐브 생성 시작!")
+
+# 1. 큐브(Cube)를 만드는 직접 명령
+# (마치 메뉴에서 Create > Shape > Cube를 클릭하는 것과 같습니다)
+omni.kit.commands.execute('CreateMeshPrimWithDefaultXform',
+    prim_type='Cube',             # 만들 모양
+    prim_path='/World/MyRedCube', # 이름 및 경로
+    select_new_prim=True)
+
+# 2. 위치 이동 (공중에 띄우기)
+omni.kit.commands.execute('TransformPrimSRT',
+    path='/World/MyRedCube',
+    new_translation=Gf.Vec3d(0, 0, 1.0), # x=0, y=0, z=1.0 (높이)
+    new_scale=Gf.Vec3d(0.5, 0.5, 0.5)    # 크기 절반으로 줄임
+)
+
+# 3. 색상 변경 (빨간색)
+import omni.usd
+from pxr import UsdGeom
+
+# 방금 만든 큐브를 가져와서 색칠하기
+stage = omni.usd.get_context().get_stage()
+cube_prim = stage.GetPrimAtPath('/World/MyRedCube')
+if cube_prim.IsValid():
+    cube_geom = UsdGeom.Mesh(cube_prim)
+    cube_geom.CreateDisplayColorAttr().Set([Gf.Vec3d(1, 0, 0)]) # RGB(1,0,0) = 빨강
+
+print(">>> 성공! 화면 중앙에 빨간 큐브가 생겼습니다.")
